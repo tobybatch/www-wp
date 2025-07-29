@@ -45,4 +45,6 @@ wp-config.php
 #
 # Note: If you wish to whitelist themes,
 # uncomment the next line
-#/wp-content/themes
+#/wp-content/themesu16.json u17.json u18.json
+initdb.d
+*.json
