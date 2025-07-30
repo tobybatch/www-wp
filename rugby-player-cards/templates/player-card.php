@@ -35,6 +35,11 @@ get_header();
                     <small>RFID: <?php echo esc_html($rfuid); ?></small>
                 </div>
             <?php endif; ?>
+            <?php if ($dob = get_post_meta($player_id, '_player_dob', true)) : ?>
+                <div class="dob-tag" style="margin:10px 0; padding:5px 10px; background:#e3f2fd; display:inline-block; border-radius:4px;">
+                    <small>DOB: <?php echo esc_html($dob); ?></small>
+                </div>
+            <?php endif; ?>
     <?php if ($dob = get_post_meta($player_id, '_player_dob', true)) :
         $age = date_diff(date_create($dob), date_create('today'))->y;
     ?>

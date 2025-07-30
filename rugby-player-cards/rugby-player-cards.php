@@ -14,11 +14,9 @@ class RugbyPlayerCards
     public function __construct()
     {
         add_action('init', array($this, 'register_player_post_type'));
+        add_action('manage_rugby_player_posts_custom_column', array($this, 'render_admin_columns'), 10, 2);
         //add_filter('manage_rugby_player_posts_columns', array($this, 'add_rfuid_column'));
         //add_action('manage_rugby_player_posts_custom_column', array($this, 'render_rfuid_column'), 10, 2);
-        add_filter('manage_rugby_player_posts_columns', array($this, 'add_admin_columns'));
-        add_action('manage_rugby_player_posts_custom_column', array($this, 'render_admin_columns'), 10, 2);
-        add_filter('manage_edit-rugby_player_sortable_columns', array($this, 'make_dob_sortable'));
         add_action('pre_get_posts', array($this, 'handle_dob_sorting'));
         add_action('add_meta_boxes', array($this, 'add_rfuid_meta_box'));
         add_action('add_meta_boxes', array($this, 'add_player_meta_boxes'));
@@ -28,19 +26,43 @@ class RugbyPlayerCards
         add_action('admin_post_rugby_player_import', array($this, 'handle_import_request'));
         add_filter('query_vars', array($this, 'add_query_vars'));
         add_action('template_include', array($this, 'player_card_template'));
-        // Increase max upload size for JSON files
+        add_action('wp_enqueue_scripts', function () {
+            if (get_query_var('academy_players_page')) {
+                wp_enqueue_style(
+                    'rugby-player-cards',
+                    plugin_dir_url(__FILE__) . 'assets/admin.css',
+                    [],
+                    '1.0'
+                );
+            }
+        });
+        add_action('init', function () {
+            add_rewrite_rule('^academy/players/?$', 'index.php?academy_players_page=1', 'top');
+        });
+        add_action('template_redirect', function () {
+            if (get_query_var('academy_players_page')) {
+                include plugin_dir_path(__FILE__) . 'players-page.php';
+                exit;
+            }
+        });
+        add_filter('manage_rugby_player_posts_columns', array($this, 'add_admin_columns'));
+        add_filter('manage_edit-rugby_player_sortable_columns', array($this, 'make_dob_sortable'));
+        add_filter('query_vars', function ($vars) {
+            $vars[] = 'academy_players_page';
+            $vars[] = 'school_year';
+            return $vars;
+        });
         add_filter('upload_size_limit', function($size) {
-    if (current_user_can('manage_options')) {
-        return 2 * 1024 * 1024; // 2MB
-    }
-    return $size;
-});
-
-// Allow JSON uploads
+            if (current_user_can('manage_options')) {
+                return 2 * 1024 * 1024; // 2MB
+            }
+            return $size;
+        });
         add_filter('upload_mimes', function($mimes) {
             $mimes['json'] = 'application/json';
             return $mimes;
         });
+
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
     }
