@@ -48,3 +48,4 @@ wp-config.php
 #/wp-content/themesu16.json u17.json u18.json
 initdb.d
 *.json
+vendor

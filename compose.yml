@@ -28,6 +28,8 @@ services:
       # This is optional!!!
       # - ./initdb.d:/docker-entrypoint-initdb.d
       # # #
+    ports:
+      - 3306:3306
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_USER=root
