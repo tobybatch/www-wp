@@ -10,13 +10,13 @@ class RugbyPlayerCards
     {
         add_action('init', array($this, 'registerPlayerPostType'));
         add_action('manage_rugby_player_posts_custom_column', array($this, 'renderAdminColumns'), 10, 2);
-        add_action('pre_get_posts', array($this, 'handle_dob_sorting'));
+        add_action('pre_get_posts', array($this, 'handleDobSorting'));
         add_action('add_meta_boxes', array($this, 'addRfuidMetaBox'));
         add_action('add_meta_boxes', array($this, 'addPlayerMetaBoxes'));
         add_action('save_post_rugby_player', array($this, 'savePlayerMeta'));
         add_action('init', array($this, 'addPlayerRewriteRule'));
         add_action('admin_menu', array($this, 'addImportMenuItem'));
-        add_action('admin_post_rugby_player_import', array($this, 'handle_import_request'));
+        add_action('admin_post_rugby_player_import', array($this, 'handleImportRequest'));
         add_filter('query_vars', array($this, 'addQueryVars'));
         add_action('template_include', array($this, 'playerCardTemplate'));
         add_action('wp_enqueue_scripts', function () {
@@ -140,7 +140,7 @@ class RugbyPlayerCards
         add_meta_box(
             'player_identification',  // Changed from 'player_rfuid'
             'Player Identification',
-            array($this, 'render_identification_meta_box'),
+            array($this, 'renderPlayerMetaBox'),
             'rugby_player',
             'side',
             'default'
@@ -421,21 +421,31 @@ class RugbyPlayerCards
         return $template;
     }
 
-
     public function renderAdminColumns($column, $post_id): void
     {
+        static $seen = [];
+
+        $key = $column . '-' . $post_id;
+
+        if (isset($seen[$key])) {
+            return;
+        }
+        $seen[$key] = true;
+
         if ($column === 'dob') {
             if ($dob = get_post_meta($post_id, '_player_dob', true)) {
                 $age = date_diff(date_create($dob), date_create('today'))->y;
-                echo $age . ' years';
+                echo esc_html($age . ' years');
             } else {
                 echo '—';
             }
         }
+
         if ($column === 'rfuid') {
             echo esc_html(get_post_meta($post_id, '_player_rfuid', true) ?: '—');
         }
     }
+
     public function renderCardsMetaBox($post): void
     {
         wp_nonce_field('save_player_cards', 'player_cards_nonce');
@@ -506,7 +516,7 @@ class RugbyPlayerCards
         echo '</div>';
     }
 
-    public function renderRfuidMetaBox($post): void
+    public function renderPlayerMetaBox($post): void
     {
 
         wp_nonce_field('save_player_identification', 'player_identification_nonce');
