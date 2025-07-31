@@ -409,6 +409,12 @@ class RugbyPlayerCards
                 delete_post_meta($post_id, '_player_rfuid');
             }
         }
+
+        if (isset($_POST['player_dob'])) {
+            update_post_meta($post_id, '_player_dob', sanitize_text_field($_POST['player_dob']));
+        } else {
+            delete_post_meta($post_id, '_player_dob');
+        }
     }
 
 
