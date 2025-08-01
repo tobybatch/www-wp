@@ -1,7 +1,7 @@
 <?php
 get_header();
 
-// Get selected school year from query
+// Get selected school year from a query
 $selected_year = isset($_GET['school_year']) ? sanitize_text_field($_GET['school_year']) : '';
 
 // Define school year date ranges

@@ -47,5 +47,5 @@ wp-config.php
 # uncomment the next line
 #/wp-content/themesu16.json u17.json u18.json
 initdb.d
-*.json
+/*.json
 vendor

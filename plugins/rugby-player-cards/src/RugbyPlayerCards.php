@@ -2,8 +2,6 @@
 
 namespace RugbyPlayerCards;
 
-use JetBrains\PhpStorm\NoReturn;
-
 class RugbyPlayerCards
 {
     public function __construct()
@@ -55,14 +53,13 @@ class RugbyPlayerCards
             $mimes['json'] = 'application/json';
             return $mimes;
         });
-
-        register_activation_hook(__FILE__, array($this, 'activate'));
-        register_deactivation_hook(__FILE__, array($this, 'deactivate'));
     }
+
     public function activate(): void
     {
         $this->registerPlayerPostType();
         $this->createCardsTable();
+        $this->addPlayerRewriteRule();
         flush_rewrite_rules();
     }
 
@@ -136,13 +133,12 @@ class RugbyPlayerCards
 
     public function addRfuidMetaBox(): void
     {
-
         add_meta_box(
             'player_identification',  // Changed from 'player_rfuid'
             'Player Identification',
             array($this, 'renderPlayerMetaBox'),
             'rugby_player',
-            'side',
+            'normal',
             'default'
         );
     }
@@ -175,10 +171,6 @@ class RugbyPlayerCards
         $columns['dob'] = 'dob';
         return $columns;
     }
-
-
-
-    // Player import
 
     public function handleDobSorting($query): void
     {
@@ -233,7 +225,7 @@ class RugbyPlayerCards
         exit;
     }
 
-    private function processPlayerImport($players, $overwrite = true)
+    private function processPlayerImport($players, $overwrite = true): bool
     {
         $success_count = 0;
 
@@ -242,13 +234,16 @@ class RugbyPlayerCards
             $latest_date = array_keys($player_data)[0];
             $evaluation = $player_data[$latest_date];
 
+            $dob = array_key_exists('dob', $evaluation) ? sanitize_text_field($evaluation['dob']) : null;
+
             // Prepare player data
             $player_post = array(
                 'post_title'   => sanitize_text_field($evaluation['name']),
                 'post_type'    => 'rugby_player',
                 'post_status'  => 'publish',
                 'meta_input'   => array(
-                    '_player_rfuid' => sanitize_text_field($player_id)
+                    '_player_rfuid' => sanitize_text_field($player_id),
+                    '_player_dob' => $dob,
                 )
             );
 
@@ -306,7 +301,7 @@ class RugbyPlayerCards
         return $success_count > 0;
     }
 
-    #[NoReturn] public function importPlayerData(): void
+    public function importPlayerData(): void
     {
         if (!current_user_can('manage_options')) {
             wp_die('Unauthorized');
@@ -578,5 +573,3 @@ class RugbyPlayerCards
         <?php
     }
 }
-
-new RugbyPlayerCards();

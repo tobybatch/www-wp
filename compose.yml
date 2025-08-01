@@ -4,7 +4,7 @@ services:
     container_name: wordpress
     volumes:
       - wordpress:/var/www/html
-      - ./rugby-player-cards:/var/www/html/wp-content/plugins/rugby-player-cards
+      - ./plugins:/var/www/html/wp-content/plugins
       - ./nrfc-theme:/var/www/html/wp-content/themes/nrfc-theme
     environment:
       - WORDPRESS_DB_NAME=wordpress
