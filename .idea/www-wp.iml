@@ -2,6 +2,8 @@
 <module type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/plugins/rugby-player-cards/src" isTestSource="false" packagePrefix="RugbyPlayerCards\" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/sponsors/src" isTestSource="false" packagePrefix="Sponsors\" />
       <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/squizlabs/php_codesniffer" />
@@ -9,6 +11,8 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpstan/extension-installer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpstan/phpstan" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/szepeviktor/phpstan-wordpress" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/rugby-player-cards/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/sponsors/vendor/composer" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

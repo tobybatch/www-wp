@@ -5,6 +5,7 @@ services:
     volumes:
       - wordpress:/var/www/html
       - ./plugins:/var/www/html/wp-content/plugins
+      - ./uploads:/var/www/html/wp-content/uploads
       - ./nrfc-theme:/var/www/html/wp-content/themes/nrfc-theme
     environment:
       - WORDPRESS_DB_NAME=wordpress

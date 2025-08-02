@@ -225,7 +225,7 @@ class RugbyPlayerCards
         exit;
     }
 
-    private function processPlayerImport($players, $overwrite = true): bool
+    public function processPlayerImport($players, $overwrite = true): bool
     {
         $success_count = 0;
 
