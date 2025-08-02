@@ -9,11 +9,13 @@ if (!$player || $player->post_type !== 'rugby_player') {
     exit;
 }
 
-$cards = $wpdb->get_results($wpdb->prepare(
-    "SELECT * FROM {$wpdb->prefix}rugby_player_cards
+$cards = $wpdb->get_results(
+    $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}rugby_player_cards
      WHERE player_id = %d ORDER BY card_date DESC",
-    $player_id
-));
+        $player_id
+    )
+);
 
 get_header();
 ?>

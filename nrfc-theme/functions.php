@@ -2,9 +2,11 @@
 
 function nrfc_theme_setup()
 {
-    register_nav_menus(array(
+    register_nav_menus(
+        array(
         'primary' => __('Primary Menu', 'nrfc')
-    ));
+        )
+    );
 }
 add_action('after_setup_theme', 'nrfc_theme_setup');
 

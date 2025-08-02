@@ -1,10 +1,12 @@
 <?php
-$sponsors = new WP_Query([
+$sponsors = new WP_Query(
+    [
     'post_type' => 'sponsor',
     'posts_per_page' => -1,
     'orderby' => 'title',
     'order' => 'ASC',
-]);
+    ]
+);
 
 if ($sponsors->have_posts()) : ?>
     <div class="header-sponsors">

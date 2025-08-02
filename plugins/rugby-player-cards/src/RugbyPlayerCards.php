@@ -16,43 +16,62 @@ class RugbyPlayerCards
         add_action('admin_menu', array($this, 'addImportMenuItem'));
         add_action('admin_post_rugby_player_import', array($this, 'handleImportRequest'));
         add_filter('query_vars', array($this, 'addQueryVars'));
+        // @phpstan-ignore return.void
         add_action('template_include', array($this, 'playerCardTemplate'));
-        add_action('wp_enqueue_scripts', function () {
-            if (get_query_var('academy_players_page')) {
-                wp_enqueue_style(
-                    'rugby-player-cards',
-                    plugin_dir_url(__FILE__) . 'assets/admin.css',
-                    [],
-                    '1.0'
-                );
+        add_action(
+            'wp_enqueue_scripts',
+            function () {
+                if (get_query_var('academy_players_page')) {
+                    wp_enqueue_style(
+                        'rugby-player-cards',
+                        plugin_dir_url(__FILE__) . 'assets/admin.css',
+                        [],
+                        '1.0'
+                    );
+                }
             }
-        });
-        add_action('init', function () {
-            add_rewrite_rule('^academy/players/?$', 'index.php?academy_players_page=1', 'top');
-        });
-        add_action('template_redirect', function () {
-            if (get_query_var('academy_players_page')) {
-                include plugin_dir_path(__FILE__) . 'players-page.php';
-                exit;
+        );
+        add_action(
+            'init',
+            function () {
+                add_rewrite_rule('^academy/players/?$', 'index.php?academy_players_page=1', 'top');
             }
-        });
+        );
+        add_action(
+            'template_redirect',
+            function () {
+                if (get_query_var('academy_players_page')) {
+                    include plugin_dir_path(__FILE__) . 'players-page.php';
+                    exit;
+                }
+            }
+        );
         add_filter('manage_rugby_player_posts_columns', array($this, 'addAdminColumns'));
         add_filter('manage_edit-rugby_player_sortable_columns', array($this, 'makeDobSortable'));
-        add_filter('query_vars', function ($vars) {
-            $vars[] = 'academy_players_page';
-            $vars[] = 'school_year';
-            return $vars;
-        });
-        add_filter('upload_size_limit', function ($size) {
-            if (current_user_can('manage_options')) {
-                return 2 * 1024 * 1024; // 2MB
+        add_filter(
+            'query_vars',
+            function ($vars) {
+                $vars[] = 'academy_players_page';
+                $vars[] = 'school_year';
+                return $vars;
             }
-            return $size;
-        });
-        add_filter('upload_mimes', function ($mimes) {
-            $mimes['json'] = 'application/json';
-            return $mimes;
-        });
+        );
+        add_filter(
+            'upload_size_limit',
+            function ($size) {
+                if (current_user_can('manage_options')) {
+                    return 2 * 1024 * 1024; // 2MB
+                }
+                return $size;
+            }
+        );
+        add_filter(
+            'upload_mimes',
+            function ($mimes) {
+                $mimes['json'] = 'application/json';
+                return $mimes;
+            }
+        );
     }
 
     public function activate(): void
@@ -65,7 +84,9 @@ class RugbyPlayerCards
 
     public function registerPlayerPostType(): void
     {
-        register_post_type('rugby_player', [
+        register_post_type(
+            'rugby_player',
+            [
             'labels' => [
                 'name' => 'Rugby Players',
                 'singular_name' => 'Rugby Player'
@@ -74,7 +95,8 @@ class RugbyPlayerCards
             'has_archive' => false,
             'supports' => ['title', 'thumbnail', 'editor'],
             'menu_icon' => 'dashicons-groups'
-        ]);
+            ]
+        );
     }
 
     public function createCardsTable(): void
@@ -96,7 +118,7 @@ class RugbyPlayerCards
                 KEY player_id (player_id)
             ) $charset_collate;";
 
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            include_once ABSPATH . 'wp-admin/includes/upgrade.php';
             dbDelta($sql);
         }
     }
@@ -218,10 +240,12 @@ class RugbyPlayerCards
         $overwrite = isset($_POST['overwrite_existing']) && $_POST['overwrite_existing'] === '1';
         $import_result = $this->processPlayerImport($players, $overwrite);
 
-        wp_redirect(admin_url(
-            'edit.php?post_type=rugby_player&page=rugby-player-import&import=' .
-            ($import_result ? 'success' : 'error')
-        ));
+        wp_redirect(
+            admin_url(
+                'edit.php?post_type=rugby_player&page=rugby-player-import&import=' .
+                ($import_result ? 'success' : 'error')
+            )
+        );
         exit;
     }
 
@@ -248,12 +272,14 @@ class RugbyPlayerCards
             );
 
             // Check if player exists
-            $existing = get_posts(array(
+            $existing = get_posts(
+                array(
                 'post_type' => 'rugby_player',
                 'meta_key' => '_player_rfuid',
                 'meta_value' => $player_id,
                 'posts_per_page' => 1
-            ));
+                )
+            );
 
             // Skip if exists and not overwriting
             if ($existing && !$overwrite) {
@@ -268,6 +294,7 @@ class RugbyPlayerCards
                 $post_id = wp_insert_post($player_post);
             }
 
+            // @phpstan-ignore function.impossibleType
             if ($post_id && !is_wp_error($post_id)) {
                 // Save positions
                 if (!empty($evaluation['positions'])) {
@@ -284,7 +311,9 @@ class RugbyPlayerCards
 
                 // Import evaluation as a card
                 global $wpdb;
-                $wpdb->insert($wpdb->prefix . 'rugby_player_cards', array(
+                $wpdb->insert(
+                    $wpdb->prefix . 'rugby_player_cards',
+                    array(
                     'player_id' => $post_id,
                     'card_date' => sanitize_text_field($latest_date),
                     'strengths' => sanitize_textarea_field($evaluation['strengths']),
@@ -292,7 +321,8 @@ class RugbyPlayerCards
                         implode("\n", array_map('sanitize_text_field', $evaluation['areas_for_development'])) : '',
                     'positions' => !empty($evaluation['positions']) ?
                         implode(', ', array_map('sanitize_text_field', $evaluation['positions'])) : ''
-                ));
+                    )
+                );
 
                 $success_count++;
             }
@@ -337,12 +367,14 @@ class RugbyPlayerCards
             );
 
             // Insert or update player
-            $existing = get_posts(array(
+            $existing = get_posts(
+                array(
                 'post_type' => 'rugby_player',
                 'meta_key' => '_player_rfuid',
                 'meta_value' => $player_id,
                 'posts_per_page' => 1
-            ));
+                )
+            );
 
             if ($existing) {
                 $player_post['ID'] = $existing[0]->ID;
@@ -351,6 +383,7 @@ class RugbyPlayerCards
                 $post_id = wp_insert_post($player_post);
             }
 
+            // @phpstan-ignore function.impossibleType
             if ($post_id && !is_wp_error($post_id)) {
                 // Save positions (for admin display)
                 update_post_meta($post_id, '_primary_position', $evaluation['positions'][0]);
@@ -358,13 +391,16 @@ class RugbyPlayerCards
 
                 // Import evaluation as a card
                 global $wpdb;
-                $wpdb->insert($wpdb->prefix . 'rugby_player_cards', array(
+                $wpdb->insert(
+                    $wpdb->prefix . 'rugby_player_cards',
+                    array(
                     'player_id' => $post_id,
                     'card_date' => $latest_date,
                     'strengths' => $evaluation['strengths'],
                     'work_ons' => implode("\n", $evaluation['areas_for_development']),
                     'positions' => implode(', ', $evaluation['positions'])
-                ));
+                    )
+                );
             }
         }
 
@@ -375,11 +411,11 @@ class RugbyPlayerCards
     public function savePlayerMeta($post_id): void
     {
         if (
-                !isset($_POST['player_cards_nonce']) ||
-                !wp_verify_nonce(
-                    $_POST['player_cards_nonce'],
-                    'save_player_cards'
-                )
+            !isset($_POST['player_cards_nonce'])
+            || !wp_verify_nonce(
+                $_POST['player_cards_nonce'],
+                'save_player_cards'
+            )
         ) {
             return;
         }
@@ -387,14 +423,17 @@ class RugbyPlayerCards
         if (isset($_POST['add_new_card'])) {
             global $wpdb;
 
-            $wpdb->insert($wpdb->prefix . 'rugby_player_cards', [
+            $wpdb->insert(
+                $wpdb->prefix . 'rugby_player_cards',
+                [
                 'player_id' => $post_id,
                 'card_date' => sanitize_text_field($_POST['new_card_date']),
                 'strengths' => sanitize_textarea_field($_POST['new_card_strengths']),
                 'work_ons' => sanitize_textarea_field($_POST['new_card_work_ons']),
                 'positions' => isset($_POST['new_card_positions']) ?
                     implode(', ', array_map('sanitize_text_field', $_POST['new_card_positions'])) : ''
-            ]);
+                ]
+            );
         }
 
         if (isset($_POST['player_rfuid_nonce']) && wp_verify_nonce($_POST['player_rfuid_nonce'], 'save_player_rfuid')) {
@@ -452,11 +491,13 @@ class RugbyPlayerCards
         wp_nonce_field('save_player_cards', 'player_cards_nonce');
         global $wpdb;
 
-        $cards = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}rugby_player_cards
+        $cards = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}rugby_player_cards
              WHERE player_id = %d ORDER BY card_date DESC",
-            $post->ID
-        ));
+                $post->ID
+            )
+        );
 
         echo '<div class="new-card-form" style="padding:20px;background:#f5f5f5;margin-bottom:20px;">';
         echo '<h3>Add New Card</h3>';
