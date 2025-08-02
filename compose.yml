@@ -11,7 +11,7 @@ services:
       - WORDPRESS_DB_NAME=wordpress
       - WORDPRESS_TABLE_PREFIX=wp_
       - WORDPRESS_DB_HOST=db
-      - WORDPRESS_DB_USER=root
+      - WORDPRESS_DB_USER=wpuser
       - WORDPRESS_DB_PASSWORD=password
       - WORDPRESS_DEBUG=true
     user: 1001:1001
@@ -25,16 +25,14 @@ services:
   db:
     image: mariadb:latest
     container_name: db
-#     volumes:
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
       # - db_data:/var/lib/mysql
-      # This is optional!!!
-      # - ./initdb.d:/docker-entrypoint-initdb.d
-      # # #
     ports:
       - 3306:3306
     environment:
       - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=root
+      - MYSQL_USER=wpuser
       - MYSQL_PASSWORD=password
       - MYSQL_DATABASE=wordpress
     restart: always
