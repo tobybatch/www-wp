@@ -1,0 +1,10 @@
+grumphp:
+    hide_circumvention_tip: true
+    hide_instructions: true
+    tasks:
+        git_commit_message:
+            matchers:
+                Conventional commit: '/^(feat|fix|docs|style|refactor|test|chore)(\([^\)]+\))?: .+/'
+            case_insensitive: false
+            multiline: false
+            max_size: 100
