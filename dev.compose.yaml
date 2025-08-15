@@ -1,6 +1,8 @@
 services:
   nrfc-wordpress:
-    image: wordpress:latest
+    image: nrfc-wordpress:dev
+    build:
+      context: .
     container_name: nrfc-wordpress
     volumes:
       - ./plugins:/var/www/html/wp-content/plugins
