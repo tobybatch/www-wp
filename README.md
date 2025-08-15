@@ -1,2 +1,12 @@
 # www-wp
-The new 2025/6 Norwich RFC website
+
+```shell
+docker \
+    compose exec db \
+    mariadb-dump \
+        --user=root \
+        --password=password \
+        --lock-tables \
+        wordpress \
+    > initdb.d/00_init.sql
+```

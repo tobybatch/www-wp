@@ -1,0 +1,37 @@
+services:
+  nrfc-wordpress:
+    image: wordpress:latest
+    container_name: nrfc-wordpress
+    volumes:
+      - ./plugins:/var/www/html/wp-content/plugins
+      - ./uploads:/var/www/html/wp-content/uploads
+      - ./themes:/var/www/html/wp-content/themes
+    environment:
+      - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME:-wordpress}
+      - WORDPRESS_TABLE_PREFIX=wp_
+      - WORDPRESS_DB_HOST=nrfc-wp-db
+      - WORDPRESS_DB_USER=${WORDPRESS_DB_USER:-wordpress}
+      - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-changemenow}
+      - WORDPRESS_DEBUG=${WORDPRESS_DEBUG:-false}
+    user: 1000:1000
+    depends_on:
+      - nrfc-wp-db
+    restart: always
+    ports:
+      - 8088:80
+
+  nrfc-wp-db:
+    image: mariadb:latest
+    container_name: nrfc-wp-db
+    volumes:
+      #- ./initdb.d:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-changemenow}
+      - MYSQL_USER=${WORDPRESS_DB_USER:-wordpress}
+      - MYSQL_PASSWORD=${WORDPRESS_DB_PASSWORD:-changemenow}
+      - MYSQL_DATABASE=${WORDPRESS_DB_NAME:-wordpress}
+    restart: always
+
+volumes:
+  db_data:

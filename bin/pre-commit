@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+./vendor/bin/phpcbf plugins/*/src nrfc-theme/ || true # Don't exit after the fix
+./vendor/bin/phpcs plugins/*/src nrfc-theme/
+./vendor/bin/phpstan 

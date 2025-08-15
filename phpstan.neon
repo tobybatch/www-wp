@@ -1,0 +1,10 @@
+parameters:
+    level: 5
+    paths:
+        - plugins/rugby-player-cards/src
+        - plugins/sponsors/src
+        - themes/nrfc-theme
+    ignoreErrors:
+        - message: '#Path in include_once\(\).+is not a file or it does not exist#'
+          path: plugins/rugby-player-cards/src/RugbyPlayerCards.php
+          count: 1
